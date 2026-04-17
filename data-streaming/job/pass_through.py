@@ -1,3 +1,5 @@
+import os
+
 from pyflink.datastream import StreamExecutionEnvironment
 from pyflink.table import EnvironmentSettings, StreamTableEnvironment
 
@@ -28,8 +30,14 @@ def create_events_source_kafka(t_env):
     t_env.execute_sql(source_ddl)
     return table_name
 
-def create_processed_events_sink_postgres(t_env):
-    table_name = 'healthcare_events'
+def create_processed_events_sink_gcs(t_env):
+    table_name = "healthcare_events_gcs"
+    bucket_name = os.environ.get("GCS_DATA_LAKE_BUCKET", "").strip()
+
+    if not bucket_name:
+        raise ValueError("GCS_DATA_LAKE_BUCKET environment variable is required")
+
+    sink_path = f"gs://{bucket_name}/healthcare_vitals"
     sink_ddl = f"""
         CREATE TABLE {table_name} (
             subject_id INTEGER,
@@ -43,12 +51,9 @@ def create_processed_events_sink_postgres(t_env):
             activity_level VARCHAR(255),
             alert_flag BOOLEAN
         ) WITH (
-            'connector' = 'jdbc',
-            'url' = 'jdbc:postgresql://postgres:5432/postgres',
-            'table-name' = '{table_name}',
-            'username' = 'postgres',
-            'password' = 'postgres',
-            'driver' = 'org.postgresql.Driver'
+            'connector' = 'filesystem',
+            'path' = '{sink_path}',
+            'format' = 'json'
         );
         """
     t_env.execute_sql(sink_ddl)
@@ -62,11 +67,11 @@ def main():
     t_env = StreamTableEnvironment.create(env, environment_settings=settings)
 
     source_table = create_events_source_kafka(t_env)
-    postgres_sink = create_processed_events_sink_postgres(t_env)
+    gcs_sink = create_processed_events_sink_gcs(t_env)
 
     t_env.execute_sql(
         f"""
-        INSERT INTO {postgres_sink}
+        INSERT INTO {gcs_sink}
         SELECT
             subject_id,
             device_id,

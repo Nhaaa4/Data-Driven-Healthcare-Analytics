@@ -54,8 +54,11 @@ services:
     volumes:
       - ./:/opt/flink/usrlib
       - ./data-streaming/:/opt/src
+      - ./terraform/keys:/opt/creds:ro
     command: jobmanager
     environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=/opt/creds/de-zoomcamp-493207-d3f7354bdd98.json
+      - GCS_DATA_LAKE_BUCKET=de-zoomcamp-493207-healthcare-lake
       - |
         FLINK_PROPERTIES=
         jobmanager.rpc.address: jobmanager
@@ -71,10 +74,13 @@ services:
     volumes:
       - ./:/opt/flink/usrlib
       - ./data-streaming/:/opt/src
+      - ./terraform/keys:/opt/creds:ro
     depends_on:
       - jobmanager
     command: taskmanager --taskmanager.registration.timeout 5 min
     environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=/opt/creds/de-zoomcamp-493207-d3f7354bdd98.json
+      - GCS_DATA_LAKE_BUCKET=de-zoomcamp-493207-healthcare-lake
       - |
         FLINK_PROPERTIES=
         jobmanager.rpc.address: jobmanager
