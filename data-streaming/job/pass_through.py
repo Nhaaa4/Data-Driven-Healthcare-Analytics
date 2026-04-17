@@ -53,7 +53,7 @@ def create_healthcare_events_sink_gcs(t_env):
         ) WITH (
             'connector' = 'filesystem',
             'path' = '{sink_path}',
-            'format' = 'parquet'
+            'format' = 'json'
         );
         """
     t_env.execute_sql(sink_ddl)
