@@ -13,7 +13,15 @@ ENV PATH="/opt/pyflink/.venv/bin:$PATH"
 
 WORKDIR /opt/flink/lib
 RUN wget https://repo.maven.apache.org/maven2/org/apache/flink/flink-json/2.2.0/flink-json-2.2.0.jar; \
+    wget https://repo.maven.apache.org/maven2/org/apache/flink/flink-parquet/2.2.0/flink-parquet-2.2.0.jar; \
     wget https://repo1.maven.org/maven2/org/apache/flink/flink-sql-connector-kafka/4.0.1-2.0/flink-sql-connector-kafka-4.0.1-2.0.jar; \
+    wget https://repo.maven.apache.org/maven2/org/apache/hadoop/hadoop-client-api/3.4.1/hadoop-client-api-3.4.1.jar; \
+    wget https://repo.maven.apache.org/maven2/org/apache/hadoop/hadoop-client-runtime/3.4.1/hadoop-client-runtime-3.4.1.jar; \
+    wget https://repo.maven.apache.org/maven2/org/apache/parquet/parquet-common/1.14.4/parquet-common-1.14.4.jar; \
+    wget https://repo.maven.apache.org/maven2/org/apache/parquet/parquet-column/1.14.4/parquet-column-1.14.4.jar; \
+    wget https://repo.maven.apache.org/maven2/org/apache/parquet/parquet-encoding/1.14.4/parquet-encoding-1.14.4.jar; \
+    wget https://repo.maven.apache.org/maven2/org/apache/parquet/parquet-format-structures/1.14.4/parquet-format-structures-1.14.4.jar; \
+    wget https://repo.maven.apache.org/maven2/org/apache/parquet/parquet-hadoop/1.14.4/parquet-hadoop-1.14.4.jar; \
     mkdir -p /opt/flink/plugins/gs-fs-hadoop; \
     wget -P /opt/flink/plugins/gs-fs-hadoop https://repo.maven.apache.org/maven2/org/apache/flink/flink-gs-fs-hadoop/2.2.0/flink-gs-fs-hadoop-2.2.0.jar
 

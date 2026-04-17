@@ -49,11 +49,21 @@ def create_healthcare_events_sink_gcs(t_env):
             diastolic_bp INT,
             body_temperature FLOAT,
             activity_level VARCHAR(255),
-            alert_flag BOOLEAN
-        ) WITH (
+            alert_flag BOOLEAN,
+            event_date STRING
+        ) PARTITIONED BY (event_date)
+        WITH (
             'connector' = 'filesystem',
             'path' = '{sink_path}',
-            'format' = 'json'
+            'format' = 'parquet',
+            
+            'sink.partition-commit.trigger' = 'process-time',
+            'sink.partition-commit.delay' = '1 min',
+            'sink.partition-commit.policy.kind' = 'success-file',
+            
+            'sink.rolling-policy.file-size' = '128MB',
+            'sink.rolling-policy.rollover-interval' = '30 min',
+            'sink.rolling-policy.check-interval' = '1 min'
         );
         """
     t_env.execute_sql(sink_ddl)
@@ -82,7 +92,8 @@ def main():
             diastolic_bp,
             body_temperature,
             activity_level,
-            alert_flag
+            alert_flag,
+            DATE_FORMAT(TO_TIMESTAMP_LTZ(event_time, 3), 'yyyy-MM-dd') as event_date
         FROM {source_table}
         """
     ).wait()

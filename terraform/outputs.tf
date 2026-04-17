@@ -3,9 +3,9 @@ output "data_lake_bucket_name" {
   value       = google_storage_bucket.data_lake.name
 }
 
-output "data_lake_raw_prefix" {
-  description = "Parquet landing path for the healthcare vitals stream"
-  value       = "gs://${google_storage_bucket.data_lake.name}/healthcare_vitals/"
+output "data_lake" {
+  description = "Partitioned Parquet landing path for the healthcare vitals stream"
+  value       = "gs://${google_storage_bucket.data_lake.name}/"
 }
 
 output "bigquery_dataset_id" {
