@@ -25,7 +25,7 @@ variable "gcp_credentials_file" {
 variable "bq_dataset_name" {
   description = "BigQuery dataset for stream analytics"
   type        = string
-  default     = "healthcare_dataset"
+  default     = "healthcare_data_warehouse"
 }
 
 variable "gcs_data_lake_name" {

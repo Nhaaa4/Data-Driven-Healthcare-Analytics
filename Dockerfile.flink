@@ -13,6 +13,7 @@ ENV PATH="/opt/pyflink/.venv/bin:$PATH"
 
 WORKDIR /opt/flink/lib
 RUN wget https://repo.maven.apache.org/maven2/org/apache/flink/flink-json/2.2.0/flink-json-2.2.0.jar; \
+    wget https://repo.maven.apache.org/maven2/org/apache/flink/flink-parquet/2.2.0/flink-parquet-2.2.0.jar; \
     wget https://repo1.maven.org/maven2/org/apache/flink/flink-sql-connector-kafka/4.0.1-2.0/flink-sql-connector-kafka-4.0.1-2.0.jar; \
     mkdir -p /opt/flink/plugins/gs-fs-hadoop; \
     wget -P /opt/flink/plugins/gs-fs-hadoop https://repo.maven.apache.org/maven2/org/apache/flink/flink-gs-fs-hadoop/2.2.0/flink-gs-fs-hadoop-2.2.0.jar

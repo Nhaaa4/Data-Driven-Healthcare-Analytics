@@ -30,7 +30,7 @@ def create_events_source_kafka(t_env):
     t_env.execute_sql(source_ddl)
     return table_name
 
-def create_processed_events_sink_gcs(t_env):
+def create_healthcare_events_sink_gcs(t_env):
     table_name = "healthcare_events_gcs"
     bucket_name = os.environ.get("GCS_DATA_LAKE_BUCKET", "").strip()
 
@@ -53,7 +53,7 @@ def create_processed_events_sink_gcs(t_env):
         ) WITH (
             'connector' = 'filesystem',
             'path' = '{sink_path}',
-            'format' = 'json'
+            'format' = 'parquet'
         );
         """
     t_env.execute_sql(sink_ddl)
@@ -67,7 +67,7 @@ def main():
     t_env = StreamTableEnvironment.create(env, environment_settings=settings)
 
     source_table = create_events_source_kafka(t_env)
-    gcs_sink = create_processed_events_sink_gcs(t_env)
+    gcs_sink = create_healthcare_events_sink_gcs(t_env)
 
     t_env.execute_sql(
         f"""

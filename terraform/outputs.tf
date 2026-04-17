@@ -4,7 +4,7 @@ output "data_lake_bucket_name" {
 }
 
 output "data_lake_raw_prefix" {
-  description = "Raw landing path for the stream"
+  description = "Parquet landing path for the healthcare vitals stream"
   value       = "gs://${google_storage_bucket.data_lake.name}/healthcare_vitals/"
 }
 
