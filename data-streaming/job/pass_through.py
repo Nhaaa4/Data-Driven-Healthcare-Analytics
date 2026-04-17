@@ -22,8 +22,8 @@ def create_events_source_kafka(t_env):
             'connector' = 'kafka',
             'properties.bootstrap.servers' = 'redpanda:29092',
             'topic' = 'healthcare_vitals',
-            'scan.startup.mode' = 'latest-offset',
-            'properties.auto.offset.reset' = 'latest',
+            'scan.startup.mode' = 'earliest-offset',
+            'properties.auto.offset.reset' = 'earliest',
             'format' = 'json'
         );
         """
