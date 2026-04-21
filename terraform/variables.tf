@@ -19,7 +19,7 @@ variable "location" {
 variable "gcp_credentials_file" {
   description = "My Credentials File"
   type        = string
-  default     = "./keys/de-zoomcamp-493207-d3f7354bdd98.json"
+  default     = "/home/hadoop/project-de-zoomcamp/.google/credentials/google_credentials.json"
 }
 
 variable "bq_dataset_name" {

@@ -1,0 +1,51 @@
+name: bronze.mimic_labevents
+type: ingestr
+connection: healthcare_bq
+
+parameters:
+  source_connection: healthcare_gcs
+  source_table: "de-zoomcamp-493207-healthcare-lake/labevents/*.parquet"
+  destination: bigquery
+  file_type: parquet
+  incremental_strategy: replace
+  partition_by: charttime
+  cluster_by: subject_id,hadm_id,itemid
+  loader_file_format: parquet
+  enforce_schema: true
+
+columns:
+  - name: row_id
+    type: integer
+    checks:
+      - name: not_null
+      - name: unique
+
+  - name: subject_id
+    type: integer
+    checks:
+      - name: not_null
+
+  - name: hadm_id
+    type: integer
+
+  - name: itemid
+    type: integer
+    checks:
+      - name: not_null
+
+  - name: charttime
+    type: timestamp
+    checks:
+      - name: not_null
+
+  - name: value
+    type: string
+
+  - name: valuenum
+    type: float
+
+  - name: valueuom
+    type: string
+
+  - name: flag
+    type: string

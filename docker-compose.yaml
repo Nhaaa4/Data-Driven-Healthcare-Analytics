@@ -32,6 +32,8 @@ services:
 
   postgres:
     image: postgres:18
+    volumes:
+      - postgres_data:/var/lib/postgresql
     restart: on-failure
     environment:
       - POSTGRES_DB=postgres
@@ -54,10 +56,10 @@ services:
     volumes:
       - ./:/opt/flink/usrlib
       - ./data-streaming/:/opt/src
-      - ./terraform/keys:/opt/creds:ro
+      - ./.google/credentials:/opt/creds:ro
     command: jobmanager
     environment:
-      - GOOGLE_APPLICATION_CREDENTIALS=/opt/creds/de-zoomcamp-493207-d3f7354bdd98.json
+      - GOOGLE_APPLICATION_CREDENTIALS=/opt/creds/google_credentials.json
       - GCS_DATA_LAKE_BUCKET=de-zoomcamp-493207-healthcare-lake
       - |
         FLINK_PROPERTIES=
@@ -74,12 +76,12 @@ services:
     volumes:
       - ./:/opt/flink/usrlib
       - ./data-streaming/:/opt/src
-      - ./terraform/keys:/opt/creds:ro
+      - ./.google/credentials:/opt/creds:ro
     depends_on:
       - jobmanager
     command: taskmanager --taskmanager.registration.timeout 5 min
     environment:
-      - GOOGLE_APPLICATION_CREDENTIALS=/opt/creds/de-zoomcamp-493207-d3f7354bdd98.json
+      - GOOGLE_APPLICATION_CREDENTIALS=/opt/creds/google_credentials.json
       - GCS_DATA_LAKE_BUCKET=de-zoomcamp-493207-healthcare-lake
       - |
         FLINK_PROPERTIES=
@@ -87,3 +89,56 @@ services:
         taskmanager.memory.process.size: 1728m
         taskmanager.numberOfTaskSlots: 15
         parallelism.default: 3
+
+
+  kestra:
+    build:
+      context: .
+      dockerfile: Dockerfile.kestra
+    image: kestra
+    user: "root"
+    command: server standalone
+    volumes:
+      - kestra_data:/app/storage
+      - kestra_tmp:/tmp/kestra-wd
+      - ./:/workspace
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      KESTRA_CONFIGURATION: |
+        datasources:
+          postgres:
+            url: jdbc:postgresql://postgres:5432/postgres
+            driverClassName: org.postgresql.Driver
+            username: postgres
+            password: postgres
+        kestra:
+          server:
+            basicAuth:
+              username: "admin@kestra.io"
+              password: "Admin1234!"
+          repository:
+            type: postgres
+          storage:
+            type: local
+            local:
+              basePath: "/app/storage"
+          queue:
+            type: postgres
+          tasks:
+            tmpDir:
+              path: /tmp/kestra-wd/tmp
+          url: http://localhost:8080/
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    depends_on:
+      kestra_postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+    driver: local
+  kestra_data:
+    driver: local
+  kestra_tmp:
+    driver: local

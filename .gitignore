@@ -4,7 +4,7 @@ __pycache__
 *.pyo
 *.pyd
 
-keys
+.google
 
 .terraform/
 
@@ -27,3 +27,8 @@ override.tf.json
 
 .terraformrc
 terraform.rc
+.bruin.yml
+logs/runs
+logs/*.log
+__pycache__/
+*.py[cod]

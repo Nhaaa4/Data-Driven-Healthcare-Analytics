@@ -1,0 +1,65 @@
+name: bronze.healthcare_vitals
+type: ingestr
+connection: healthcare_bq
+
+parameters:
+  source_connection: healthcare_gcs
+  source_table: "de-zoomcamp-493207-healthcare-lake/healthcare_vitals/*/*"
+  destination: bigquery
+  file_type: parquet
+  incremental_strategy: replace
+  loader_file_format: parquet
+  enforce_schema: true
+
+columns:
+  - name: subject_id
+    type: integer
+    checks:
+      - name: not_null
+
+  - name: device_id
+    type: integer
+    checks:
+      - name: not_null
+
+  - name: event_time
+    type: timestamp
+    checks:
+      - name: not_null
+      
+  - name: heart_rate
+    type: integer
+    checks:
+      - name: positive
+
+  - name: oxygen_level
+    type: integer
+    checks:
+      - name: min
+        value: 0
+      - name: max
+        value: 100
+
+  - name: systolic_bp
+    type: integer
+    checks:
+      - name: positive
+
+  - name: diastolic_bp
+    type: integer
+    checks:
+      - name: positive
+
+  - name: body_temperature
+    type: float
+    checks:
+      - name: positive
+
+  - name: activity_level
+    type: string
+    checks:
+      - name: accepted_values
+        value: [sleeping, resting, walking, running]
+
+  - name: alert_flag
+    type: boolean
