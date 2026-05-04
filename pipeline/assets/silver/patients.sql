@@ -2,55 +2,44 @@
 
 name: silver.patients
 type: bq.sql
-connection: healthcare_bq
-depends:
-  - bronze.mimic_patients
+connection: healthcare_gcp
 
 materialization:
   type: table
 
+depends:
+  - bronze.raw_healthcare_admissions
+
 columns:
-  - name: subject_id
-    type: integer
+  - name: patient_key
+    type: string
     checks:
       - name: not_null
       - name: unique
-  - name: date_of_birth
+  - name: birth_date
     type: date
-    checks:
-      - name: not_null
   - name: gender
     type: string
-  - name: is_deceased
-    type: boolean
 
 @bruin */
 
-with ranked_patients as (
+with source_patients as (
   select
-    subject_id,
-    upper(trim(gender)) as gender,
-    cast(dob as date) as date_of_birth,
-    cast(dod as date) as date_of_death,
-    cast(expire_flag as bool) as is_deceased,
-    row_number() over (
-      partition by subject_id
-      order by coalesce(dod, dob) desc, row_id desc
-    ) as rn
-  from `bronze.mimic_patients`
-  where subject_id is not null
-    and dob is not null
+    nullif(trim(name), '') as patient_name,
+    safe_cast(age as int64) as age,
+    lower(nullif(trim(gender), '')) as gender,
+    coalesce(any_value(nullif(trim(blood_type), '')), 'unknown') as blood_type
+  from `bronze.raw_healthcare_admissions`
+  where nullif(trim(name), '') is not null
+    and safe_cast(age as int64) is not null
+    and lower(nullif(trim(gender), '')) is not null
+  group by 1, 2, 3
 )
 select
-  subject_id,
-  case
-    when gender in ('M', 'F') then gender
-    else 'UNKNOWN'
-  end as gender,
-  date_of_birth,
-  date_of_death,
-  is_deceased
-from ranked_patients
-where rn = 1
-  and date_of_birth <= current_date()
-  and (date_of_death is null or date_of_death >= date_of_birth);
+  generate_uuid() as patient_key,
+  patient_name,
+  age,
+  date_sub(current_date(), interval age year) as birth_date,
+  gender,
+  blood_type
+from source_patients;

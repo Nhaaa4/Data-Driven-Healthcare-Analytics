@@ -1,6 +1,7 @@
-name: healthcare-warehouse
-schedule: "@monthly"
+name: healthcare-data-warehouse
+schedule: monthly
 start_date: "2026-01-01"
+catchup: false
+
 default_connections:
-  google_cloud_platform: "healthcare_bq"
-retries: 1
+  google_cloud_platform: healthcare_gcp

@@ -8,7 +8,7 @@ def create_events_source_kafka(t_env):
     table_name = "events"
     source_ddl = f"""
         CREATE TABLE {table_name} (
-            subject_id INTEGER,
+            subject_id VARCHAR(255),
             device_id INTEGER,
             event_time BIGINT,
             heart_rate INT,
@@ -40,7 +40,7 @@ def create_healthcare_events_sink_gcs(t_env):
     sink_path = f"gs://{bucket_name}/healthcare_vitals"
     sink_ddl = f"""
         CREATE TABLE {table_name} (
-            subject_id INTEGER,
+            subject_id VARCHAR(255),
             device_id INTEGER,
             event_time TIMESTAMP,
             heart_rate INT,

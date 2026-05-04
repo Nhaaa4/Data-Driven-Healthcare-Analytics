@@ -6,7 +6,7 @@ FLINK_JOB_PATH := /opt/src/job/pass_through.py
 PRODUCER_PATH := data-streaming/producers/producer_real_time.py
 
 .PHONY: help terraform-init terraform-plan terraform-apply terraform-destroy terraform-output \
-	docker-build docker-up docker-down docker-logs flink-submit producer pipeline-up pipeline-down
+	docker-build docker-up docker-down docker-logs flink-submit producer bruin-pipeline dashboard 
 
 help:
 	@echo "Available targets:"
@@ -21,8 +21,8 @@ help:
 	@echo "  docker-logs       Tail Docker logs"
 	@echo "  flink-submit      Submit the PyFlink job to the jobmanager"
 	@echo "  producer          Start the Kafka producer"
-	@echo "  pipeline-up       Build services, start Docker, and submit the Flink job"
-	@echo "  pipeline-down     Stop the Docker stack"
+	@echo "  dashboard         Start the Streamlit dashboard"
+	@echo "  bruin-pipeline     Run the Bruin pipeline"
 
 terraform-init:
 	cd $(TERRAFORM_DIR) && terraform init
@@ -57,6 +57,8 @@ flink-submit:
 producer:
 	uv run python $(PRODUCER_PATH)
 
-pipeline-up: docker-build docker-up flink-submit
+bruin-pipeline:
+	bruin run pipeline
 
-pipeline-down: docker-down
+dashboard:
+	uv run streamlit run dashboard/app.py

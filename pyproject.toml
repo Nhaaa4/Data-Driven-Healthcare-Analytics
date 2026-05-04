@@ -5,16 +5,20 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "db-dtypes>=1.4.3",
     "gcsfs>=2026.3.0",
+    "google-cloud-bigquery>=3.38.0",
     "kafka-python>=2.3.1",
+    "pandas>=3.0.2",
+    "plotly>=5.22.0",
     "pyarrow>=23.0.1",
     "pyspark>=4.1.1",
+    "streamlit>=1.50.0",
 ]
 
 [dependency-groups]
 dev = [
     "fsspec>=2026.3.0",
     "jupyter>=1.1.1",
-    "pandas>=3.0.2",
     "psycopg2>=2.9.11",
 ]

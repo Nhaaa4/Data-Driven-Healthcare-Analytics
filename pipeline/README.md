@@ -1,109 +1,60 @@
-# Bruin - Sample Pipeline
+# Healthcare Data Warehouse Bruin Pipeline
 
-Congrats! 🎉 You just created your first Bruin Pipeline!
+This Bruin pipeline builds a BigQuery healthcare warehouse with bronze, silver, and gold layers.
 
-This pipeline is a simple example of a Bruin project. It demonstrates how to use the `bruin` CLI to build and run a pipeline.
-DuckDB was chosen for its simplicity. This setup assumes DuckDB is available; you can swap `duckdb.sql` asset types.
+## Structure
 
-The pipeline includes the following sample assets:
-- `dataset.players`: An ingestr asset that loads chess player data into DuckDB.
-- `dataset.player_stats`: A DuckDB SQL asset that builds a table from `dataset.players`.
-- `my_python_asset`: A Python asset that prints a message.
-
-## Setup
-This template includes a `.bruin.yml` with sample DuckDB and chess connections. You can replace or extend with your connections and environments as needed.
-
-Here's a sample `.bruin.yml` file:
-
-```yaml
-default_environment: default
-environments:
-  default:
-    connections:
-      duckdb:
-        - name: "duckdb-default"
-          path: "duckdb.db"
-      chess:
-        - name: "chess-default"
-          players:
-            - "FabianoCaruana"
-            - "Hikaru"
-            - "MagnusCarlsen"
-            - "GothamChess"
-            - "DanielNaroditsky"
-            - "AnishGiri"
-            - "Firouzja2003"
-            - "LevonAronian"
-            - "WesleySo"
-            - "GarryKasparov"
+```text
+pipeline/
+  pipeline.yml
+  assets/
+    bronze/   raw batch seeds and streaming vitals ingestion
+    silver/   cleaned, typed, PII-free source models
+    gold/     dimensional warehouse tables
 ```
 
-You can simply switch the environment using the `--environment` flag, e.g.:
+## Sources
 
-```shell
-bruin validate --environment production . 
+- Batch CSV files come from `data/` in this repository and are loaded with Bruin `bq.seed` assets.
+- Streaming vitals are ingested from `gs://de-zoomcamp-493207-healthcare-lake/healthcare_vitals/` with a Bruin `ingestr` asset.
+
+PII fields such as `ssn`, `passport`, `drivers`, and phone numbers are only present in bronze when they exist in the source. Silver and gold models exclude them.
+
+`gold.dim_patient` is sourced only from `data/patients.csv` through `silver.patients`. Synthetic patient records from `healthcare_dataset.csv` are not added to the patient dimension.
+
+All gold dimension and fact assets include blocking row-count custom checks. A `bruin run` fails if any target warehouse table materializes with zero rows.
+
+## Configure
+
+Set Bruin connections in `.bruin.yml` or override them in your local Bruin environment:
+
+- `healthcare_gcp`: Google Cloud Platform connection used by BigQuery SQL and seed assets
+- `healthcare_gcs`: GCS source connection used by the streaming vitals ingestion asset
+
+The default project is `de-zoomcamp-493207`; update `pipeline.yml` if your BigQuery project differs.
+
+## Run
+
+Validate all assets:
+
+```bash
+bruin validate pipeline
 ```
 
-## Running the pipeline
+Before the first warehouse run, use fast validation because BigQuery dry-run validation expects upstream bronze and silver tables to already exist:
 
-bruin CLI can run the whole pipeline or any task with the downstreams:
-
-```shell
-bruin run .
+```bash
+bruin validate pipeline --fast
 ```
 
-```shell
-Starting the pipeline execution...
+Run the full pipeline:
 
-[18:42:58] Running:  my_python_asset
-[18:42:58] Running:  dataset.players
-[18:42:58] [my_python_asset] >> warning: `--no-sync` has no effect when used outside of a project
-[18:42:58] [my_python_asset] >> hello world
-[18:42:58] Finished: my_python_asset (191ms)
-⋮
-[18:43:04] Finished: dataset.player_stats:player_count:not_null (24ms)
-[18:43:04] Finished: dataset.player_stats:player_count:positive (33ms)
-[18:43:04] Finished: dataset.player_stats:name:unique (42ms)
-
-==================================================
-
-PASS my_python_asset 
-PASS dataset.players 
-PASS dataset.player_stats .....
-
-
-bruin run completed successfully in 5.439s
-
- ✓ Assets executed      3 succeeded
- ✓ Quality checks       5 succeeded
+```bash
+bruin run pipeline
 ```
 
-You can also run a single task:
+Inspect lineage:
 
-```shell
-bruin run assets/my_python_asset.py                         
+```bash
+bruin lineage pipeline/assets/gold/fct_vitals_sign.sql
 ```
-
-```shell
-Starting the pipeline execution...
-
-[23:00:02] Running:  my_python_asset
-[23:00:02] >> warning: `--no-sync` has no effect when used outside of a project
-[23:00:02] >> hello world
-[23:00:02] Finished: my_python_asset (162ms)
-
-==================================================
-
-PASS my_python_asset 
-
-
-bruin run completed successfully in 162ms
-
- ✓ Assets executed      1 succeeded
-```
-
-You can optionally pass a `--downstream` flag to run the task with all of its downstreams.
-
-That's it, you are all set. Happy Building!
-
-If you want to dig deeper, jump into the [Concepts](https://getbruin.com/docs/bruin/getting-started/concepts.html) to learn more about the underlying concepts Bruin use for your data pipelines.

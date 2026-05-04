@@ -1,0 +1,7 @@
+name: bronze.raw_healthcare_admissions
+type: bq.seed
+description: Raw synthetic admissions, hospital, insurance, and patient billing source.
+connection: healthcare_gcp
+
+parameters:
+  path: ../../../data/healthcare_dataset.csv

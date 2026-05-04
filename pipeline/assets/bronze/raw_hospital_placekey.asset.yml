@@ -1,0 +1,8 @@
+name: bronze.raw_hospital_placekey
+type: bq.seed
+description: Raw hospital Placekey crosswalk.
+connection: healthcare_gcp
+
+parameters:
+  path: ../../../data/Placekey_hospital_pk_crosswalk.csv
+

@@ -12,10 +12,10 @@ from typing import Iterator
 import random
 import pandas as pd
 
-subject_id_csv = pd.read_csv("data-streaming/bquxjob_7418a44a_19d9ff11460.csv")
+subject_id_csv = pd.read_csv("/home/hadoop/project-de-zoomcamp/data/patients.csv")
 
 def event_stream() -> Iterator[VitalEvent]:
-    subject_ids = subject_id_csv['subject_id'].tolist()
+    subject_ids = subject_id_csv['patient'].tolist()
     device_ids = [f"{10000 + i}" for i in range(1, 26)]
     subject_device_map = dict(zip(subject_ids, random.choices(device_ids, k=len(subject_ids))))
 

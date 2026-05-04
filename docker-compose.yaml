@@ -39,6 +39,11 @@ services:
       - POSTGRES_DB=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     ports:
       - "5433:5432"
 
@@ -91,54 +96,6 @@ services:
         parallelism.default: 3
 
 
-  kestra:
-    build:
-      context: .
-      dockerfile: Dockerfile.kestra
-    image: kestra
-    user: "root"
-    command: server standalone
-    volumes:
-      - kestra_data:/app/storage
-      - kestra_tmp:/tmp/kestra-wd
-      - ./:/workspace
-      - /var/run/docker.sock:/var/run/docker.sock
-    environment:
-      KESTRA_CONFIGURATION: |
-        datasources:
-          postgres:
-            url: jdbc:postgresql://postgres:5432/postgres
-            driverClassName: org.postgresql.Driver
-            username: postgres
-            password: postgres
-        kestra:
-          server:
-            basicAuth:
-              username: "admin@kestra.io"
-              password: "Admin1234!"
-          repository:
-            type: postgres
-          storage:
-            type: local
-            local:
-              basePath: "/app/storage"
-          queue:
-            type: postgres
-          tasks:
-            tmpDir:
-              path: /tmp/kestra-wd/tmp
-          url: http://localhost:8080/
-    ports:
-      - "8080:8080"
-      - "8081:8081"
-    depends_on:
-      kestra_postgres:
-        condition: service_healthy
-
 volumes:
   postgres_data:
-    driver: local
-  kestra_data:
-    driver: local
-  kestra_tmp:
     driver: local

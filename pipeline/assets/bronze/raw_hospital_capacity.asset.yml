@@ -1,0 +1,7 @@
+name: bronze.raw_hospital_capacity
+type: bq.seed
+description: Raw HHS facility-level weekly hospital capacity source.
+connection: healthcare_gcp
+
+parameters:
+  path: ../../../data/reported_hospital_capacity_admissions_facility_level_weekly_average_timeseries_20210103.csv

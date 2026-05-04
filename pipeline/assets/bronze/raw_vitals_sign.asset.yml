@@ -1,0 +1,16 @@
+name: bronze.raw_vitals_sign
+type: ingestr
+description: Raw streaming-ready vitals files ingested from GCS into BigQuery.
+connection: healthcare_gcp
+
+parameters:
+  destination: bigquery
+  enforce_schema: "true"
+  file_type: parquet
+  incremental_strategy: append
+  loader_file_format: parquet
+  source_connection: healthcare_gcs
+  source_table: de-zoomcamp-493207-healthcare-lake/healthcare_vitals/*/*
+
+materialization:
+  type: table

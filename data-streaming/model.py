@@ -6,7 +6,7 @@ import json
 
 @dataclass(slots=True)
 class VitalEvent:
-    subject_id: int
+    subject_id: str
     device_id: int
     event_time: int
     heart_rate: int
@@ -95,7 +95,7 @@ def _compute_alert_flag(event: VitalEvent) -> bool:
     )
 
 
-def generate_vital_event(subject_id: int, device_id: int) -> VitalEvent:
+def generate_vital_event(subject_id: str, device_id: int) -> VitalEvent:
     activity_level = _sample_activity_level()
     heart_rate, oxygen_level, systolic_bp, diastolic_bp, body_temperature = _base_vitals(activity_level)
     heart_rate, oxygen_level, systolic_bp, diastolic_bp, body_temperature = _inject_outlier(
@@ -107,7 +107,7 @@ def generate_vital_event(subject_id: int, device_id: int) -> VitalEvent:
     )
 
     event = VitalEvent(
-        subject_id=int(subject_id),
+        subject_id=str(subject_id),
         device_id=int(device_id),
         event_time=int(datetime.now(UTC).timestamp() * 1000),
         heart_rate=int(heart_rate),
