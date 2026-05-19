@@ -1,0 +1,12 @@
+default_environment: default
+environments:
+    default:
+        connections:
+            gcs:
+                - name: healthcare_gcs
+                  service_account_file: path/to/your/service_account_file.json
+            google_cloud_platform:
+                - name: healthcare_gcp
+                  service_account_file: path/to/your/service_account_file.json
+                  project_id: your_project_id
+                  location: US
